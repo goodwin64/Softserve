@@ -9,28 +9,40 @@ import java.util.stream.Collectors;
  */
 public class Main {
     public static void main(String[] args) {
-        generateEmployees("data.txt", 10);
+        generateEmployees("data-in.txt", 35);
 
-        ArrayList<Worker> workers = new ArrayList<>(10);
-        ArrayList<Freelancer> freelancers = new ArrayList<>(10);
+        ArrayList<Employee> employees = new ArrayList<>(10);
 
         try {
-            read("data.txt", workers, freelancers);
+            read("data-in.txt", employees);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        Collections.sort(workers, new SortDescBySalary());
+        Collections.sort(employees, new SortDescBySalary());
 
-        System.out.println("First five workers full info:");
+        System.out.println("[problem A] First five employees full info:");
         for (int i = 0; i < 5; i++) {
-            System.out.println(workers.get(i));
+            System.out.println(employees.get(i));
         }
 
-        System.out.println("Last three freelancers id:");
-        for (int i = freelancers.size() - 1; i > freelancers.size() - 4; i--) {
-            System.out.println(freelancers.get(i).getID());
+        System.out.println("[problem B] Last three employees id:");
+        for (int i = employees.size() - 1; i > employees.size() - 4; i--) {
+            System.out.println(employees.get(i).getID());
         }
+
+        try {
+            FileWriter sw = new FileWriter("data-out.txt", true);
+            for (Employee employee : employees) {
+                sw.write(employee + "\n");
+            }
+            sw.close();
+        } catch (FileNotFoundException e1) {
+            System.err.print(e1.getMessage());
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+
     }
 
     public static void oneLineToFile(String path, String employeeData) {
@@ -64,8 +76,7 @@ public class Main {
     }
 
     public static void read(String fileName,
-                            ArrayList<Worker> workers,
-                            ArrayList<Freelancer> freelancers) throws FileNotFoundException {
+                            ArrayList<Employee> employees) throws FileNotFoundException {
         File file = new File(fileName);
         exists(fileName);
 
@@ -74,9 +85,9 @@ public class Main {
                 String line;
                 while ((line = in.readLine()) != null) {
                     if (line.charAt(0) == 'w') {
-                        workers.add(new Worker(line));
+                        employees.add(new Worker(line));
                     } else if (line.charAt(0) == 'f') {
-                        freelancers.add(new Freelancer(line));
+                        employees.add(new Freelancer(line));
                     }
                 }
             }
@@ -118,9 +129,9 @@ class Employee {
                 .filter(x -> !x.equals(""))
                 .collect(Collectors.toList());
         // TODO: check if employee's data is correct
-        this.name = attributes.get(1);
-        this.age = Integer.parseInt(attributes.get(2));
-        this.salary = Double.parseDouble(attributes.get(3));
+        this.name = attributes.get(2);
+        this.age = Integer.parseInt(attributes.get(3));
+        this.salary = Double.parseDouble(attributes.get(4));
         this.id = maxID + 1;
         this.maxID++;
     }
@@ -200,7 +211,7 @@ class Freelancer extends Employee {
     public Freelancer() {
         super();
         double randSalary = Math.random() * 20 + 20;
-        this.setSalary(randSalary);
+        this.setSalary(20.8 * 8 * randSalary);
     }
     public Freelancer(String entireData) {
         super(entireData);
