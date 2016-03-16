@@ -31,20 +31,15 @@ public class Main {
             System.out.println(employees.get(i).getID());
         }
 
-        try {
-            FileWriter sw = new FileWriter("data-out.txt", true);
-            for (Employee employee : employees) {
-                sw.write(employee + "\n");
-            }
-            sw.close();
-        } catch (FileNotFoundException e1) {
-            System.err.print(e1.getMessage());
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
-
+        printToFile("data-out.txt", employees);
     }
 
+    /**
+     * Writes one line consists of an employee's data to file.
+     *
+     * @param employeeData      String which will be written to file
+     * @param path              path to file
+     */
     public static void oneLineToFile(String path, String employeeData) {
         try {
             FileWriter sw = new FileWriter(path, true);
@@ -57,10 +52,15 @@ public class Main {
         }
     }
 
+    /**
+     * Fill the file by {count} random employees.
+     *
+     * @param filepath      path to file
+     * @param count         count of employees to generate
+     */
     public static void generateEmployees(String filepath, int count) {
         for (int i = 0; i < count; i++) {
             if (Math.random() < 0.5) {
-                // TODO: rearrange id assignment
                 oneLineToFile(filepath, new Worker().toString());
             } else {
                 oneLineToFile(filepath, new Freelancer().toString());
@@ -68,6 +68,12 @@ public class Main {
         }
     }
 
+    /**
+     * If file exists - do nothing.
+     *
+     * @param fileName      related path to file
+     * @throws FileNotFoundException if file doesn't exist
+     */
     private static void exists(String fileName) throws FileNotFoundException {
         File file = new File(fileName);
         if (!file.exists()){
@@ -75,6 +81,13 @@ public class Main {
         }
     }
 
+    /**
+     * Gets employees from file and puts them to ArrayList.
+     *
+     * @param employees     ArrayList consists of Workers and Freelancers
+     * @param fileName      related path to file
+     * @throws FileNotFoundException if file doesn't exist
+     */
     public static void read(String fileName,
                             ArrayList<Employee> employees) throws FileNotFoundException {
         File file = new File(fileName);
@@ -84,6 +97,7 @@ public class Main {
             try (BufferedReader in = new BufferedReader(new FileReader(file.getAbsoluteFile()))) {
                 String line;
                 while ((line = in.readLine()) != null) {
+                    // TODO: check the correctness of current line
                     if (line.charAt(0) == 'w') {
                         employees.add(new Worker(line));
                     } else if (line.charAt(0) == 'f') {
@@ -95,8 +109,25 @@ public class Main {
             throw new RuntimeException(e);
         }
     }
+
+    public static void printToFile(String filepath, ArrayList<Employee> employees) {
+        try {
+            FileWriter sw = new FileWriter(filepath, true);
+            for (Employee employee : employees) {
+                sw.write(employee + "\n");
+            }
+            sw.close();
+        } catch (FileNotFoundException e1) {
+            System.err.print(e1.getMessage());
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+    }
 }
 
+/**
+ * Parent class for Worker and Freelancer
+ */
 class Employee {
     private String name;
     private int age;
@@ -116,7 +147,6 @@ class Employee {
         this.id = maxID + 1;
         this.maxID++;
     }
-
     /**
      * @param entireData    String contains employee's type, name, age and salary
      *                      separated by spaces:
@@ -129,11 +159,10 @@ class Employee {
                 .filter(x -> !x.equals(""))
                 .collect(Collectors.toList());
         // TODO: check if employee's data is correct
+        this.id = Integer.parseInt(attributes.get(1));
         this.name = attributes.get(2);
         this.age = Integer.parseInt(attributes.get(3));
         this.salary = Double.parseDouble(attributes.get(4));
-        this.id = maxID + 1;
-        this.maxID++;
     }
     public Employee(String name, int age) {
         this.name = name;
@@ -171,16 +200,16 @@ class Employee {
     @Override
     public String toString() {
         /*
-        * Locale is English because float numbers delimiter
-        * should be point "." instead of comma ",".
-        */
+         * Locale is English because float numbers delimiter
+         * should be point "." instead of comma ",".
+         */
         return String.format(Locale.ENGLISH, "%4d %10s %d %10.2f",
                 this.getID(), this.getName(), this.getAge(), this.getSalary());
     }
 }
 
 /**
- * Employees with hourly wage.
+ * Employees with fixed monthly payment.
  */
 class Worker extends Employee {
 
@@ -204,7 +233,7 @@ class Worker extends Employee {
 }
 
 /**
- * Employees with fixed monthly payment.
+ * Employees with hourly wage.
  */
 class Freelancer extends Employee {
 
@@ -227,6 +256,10 @@ class Freelancer extends Employee {
     }
 }
 
+/**
+ * Class to comparing 2 employees by their salaries in descending order.
+ * In the case of equal salary – by their names.
+ */
 class SortDescBySalary implements Comparator<Employee> {
     @Override
     public int compare(Employee em1, Employee em2) {
