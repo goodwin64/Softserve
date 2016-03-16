@@ -1,0 +1,32 @@
+Please create new class Customer.
+Store the customer information, such as address, phone number, etc. in this class.
+Change type of field customer in class Order by Customer type.
+Please propose the other solutions for improving quality of the code.
+
+class Order {
+    private String customer;
+    private int days;
+    public static final int ORDER_MAX_DAYS = 366;
+
+    public Order(String customer) {
+        this.customer = customer;
+    }
+
+    public int getDays() {
+        return days;
+    }
+    public void setDays(int days) throws IllegalArgumentException {
+        if (days >= 0 && days < ORDER_MAX_DAYS) {
+            this.days = days;
+        } else {
+            throw new IllegalArgumentException("Wrong days count"); // >1 year order
+        }
+    }
+
+    public String getCustomer() {
+        return customer;
+    }
+    public void setCustomer(String customer) {
+        this.customer = customer;
+    }
+}
